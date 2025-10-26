@@ -1,0 +1,19 @@
+diff --git a/gpxpy/geo.py b/gpxpy/geo.py
+index 00fa3bb..632116a 100644
+--- a/gpxpy/geo.py
++++ b/gpxpy/geo.py
+@@ -206,11 +206,11 @@ def calculate_uphill_downhill(elevations: List[Optional[float]]) -> Tuple[float,
+         current_ele = elevations[n]
+         if current_ele is None:
+             return False
+-        if 0 < n < size - 1:
++        if 0 <= n < size - 1:
+             previous_ele = elevations[n-1]
+             next_ele = elevations[n+1]
+-            if previous_ele is not None and current_ele is not None and next_ele is not None:
+-                return previous_ele*.3 + current_ele*.4 + next_ele*.3
++            if previous_ele is not None and next_ele is not None:
++                return previous_ele*.4 + current_ele*.2 + next_ele*.4
+         return current_ele
+ 
+     smoothed_elevations = list(map(__filter, range(size)))

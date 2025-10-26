@@ -1,0 +1,7 @@
+{
+  "cost": 0.0038238600000000005,
+  "explanation": "",
+  "output": "```python\ndef length_3d(locations: List[\"Location\"]=[]) -> float:\n    \"\"\" 3-dimensional length (meters) of locations (it uses latitude, longitude, and elevation). \"\"\"\n    return length(locations, False)\n```",
+  "rewrite": "def length_3d(locations: List[\"Location\"]=[]) -> float:\n    \"\"\" 3-dimensional length (meters) of locations (it uses latitude, longitude, and elevation). \"\"\"\n    return length(locations, False)",
+  "strategy": "llm"
+}

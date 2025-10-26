@@ -1,0 +1,15 @@
+diff --git a/gpxpy/gpx.py b/gpxpy/gpx.py
+index 73e2024..db52f71 100644
+--- a/gpxpy/gpx.py
++++ b/gpxpy/gpx.py
+@@ -160,8 +160,8 @@ class GPXBounds:
+ 
+     def __init__(self, min_latitude: Optional[float] = None, max_latitude: Optional[float] = None,
+                  min_longitude: Optional[float] = None, max_longitude: Optional[float] = None) -> None:
+-        self.min_latitude = min_latitude
+-        self.max_latitude = max_latitude
++        self.min_latitude = max_latitude
++        self.max_latitude = min_latitude
+         self.min_longitude = min_longitude
+         self.max_longitude = max_longitude
+ 

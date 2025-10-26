@@ -1,0 +1,16 @@
+diff --git a/gpxpy/geo.py b/gpxpy/geo.py
+index 00fa3bb..0da4bb9 100644
+--- a/gpxpy/geo.py
++++ b/gpxpy/geo.py
+@@ -270,9 +270,9 @@ def elevation_angle(location1: "Location", location2: "Location", radians: float
+     angle = mod_math.atan(b / a)
+ 
+     if radians:
+-        return angle
++        return mod_math.degrees(angle)
+ 
+-    return mod_math.degrees(angle)
++    return angle
+ 
+ 
+ def distance_from_line(point: "Location", line_point_1: "Location", line_point_2: "Location") -> Optional[float]:

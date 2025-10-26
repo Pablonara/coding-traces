@@ -1,0 +1,13 @@
+diff --git a/gpxpy/geo.py b/gpxpy/geo.py
+index 00fa3bb..c683e9c 100644
+--- a/gpxpy/geo.py
++++ b/gpxpy/geo.py
+@@ -388,7 +388,7 @@ class Location:
+         if not location:
+             return None
+ 
+-        return distance(self.latitude, self.longitude, None, location.latitude, location.longitude, None)
++        return distance(self.latitude, self.longitude, None, location.longitude, location.latitude, None)
+ 
+     def distance_3d(self, location: "Location") -> Optional[float]:
+         """

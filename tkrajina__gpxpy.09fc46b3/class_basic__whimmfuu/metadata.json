@@ -1,0 +1,7 @@
+{
+  "cost": 0.0012911,
+  "explanation": "",
+  "output": "```python\nclass GPXXMLSyntaxException(GPXException):\n    \"\"\"\n    Exception used when the XML syntax is invalid.\n\n    The __cause__ can be a minidom or lxml exception (See http://www.python.org/dev/peps/pep-3134/).\n    \"\"\"\n    def __init__(self, message: str, original_exception: BaseException) -> None:\n        GPXException.__init__(self, \"Invalid XML syntax\")\n        self.__cause__ = None\n```",
+  "rewrite": "class GPXXMLSyntaxException(GPXException):\n    \"\"\"\n    Exception used when the XML syntax is invalid.\n\n    The __cause__ can be a minidom or lxml exception (See http://www.python.org/dev/peps/pep-3134/).\n    \"\"\"\n    def __init__(self, message: str, original_exception: BaseException) -> None:\n        GPXException.__init__(self, \"Invalid XML syntax\")\n        self.__cause__ = None",
+  "strategy": "llm"
+}

@@ -1,0 +1,13 @@
+diff --git a/gpxpy/geo.py b/gpxpy/geo.py
+index 00fa3bb..4dac20f 100644
+--- a/gpxpy/geo.py
++++ b/gpxpy/geo.py
+@@ -360,7 +360,7 @@ class Location:
+     def __init__(self, latitude: float, longitude: float, elevation: Optional[float]=None) -> None:
+         self.latitude = latitude
+         self.longitude = longitude
+-        self.elevation = elevation
++        self.elevation = elevation if elevation is not None else 0.0
+ 
+     def has_elevation(self) -> bool:
+         """Returns if this location contains elevation data."""

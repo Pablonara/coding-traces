@@ -1,0 +1,15 @@
+diff --git a/gpxpy/gpx.py b/gpxpy/gpx.py
+index 73e2024..fd61d04 100644
+--- a/gpxpy/gpx.py
++++ b/gpxpy/gpx.py
+@@ -181,8 +181,8 @@ class GPXBounds:
+     def max_bounds(self, bounds: "GPXBounds") -> "GPXBounds":
+         return GPXBounds(self._min(self.min_latitude, bounds.min_latitude),
+             self._max(self.max_latitude, bounds.max_latitude),
+-            self._min(self.min_longitude, bounds.min_longitude),
+-            self._max(self.max_longitude, bounds.max_longitude))
++            self._max(self.min_longitude, bounds.min_longitude),
++            self._min(self.max_longitude, bounds.max_longitude))
+ 
+ class GPXXMLSyntaxException(GPXException):
+     """

@@ -1,0 +1,13 @@
+diff --git a/gpxpy/geo.py b/gpxpy/geo.py
+index 00fa3bb..3183355 100644
+--- a/gpxpy/geo.py
++++ b/gpxpy/geo.py
+@@ -307,7 +307,7 @@ def get_line_equation_coefficients(location1: "Location", location2: "Location")
+         return 0, 1, -location1.longitude
+     else:
+         a = (location1.latitude - location2.latitude) / (location1.longitude - location2.longitude)
+-        b = location1.latitude - location1.longitude * a
++        b = location2.latitude - location2.longitude * a
+         return 1, -a, -b
+ 
+ 

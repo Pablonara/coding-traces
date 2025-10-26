@@ -1,0 +1,7 @@
+{
+  "cost": 0.0029812600000000003,
+  "explanation": "",
+  "output": "```python\ndef elevation_angle(self, location: \"Location\", radians: bool=False) -> Optional[float]:\n    \"\"\"\n    Computes the uphill/downhill angle towards locations.\n\n    Parameters\n    ----------\n    location: Location\n        Location to calculate the angle to.\n    radians: bool, default=False\n        If True: return result in radians.\n        If False: return result in degrees.\n\n    Returns\n    ----------\n    angle : float\n        Angle returned in degrees or radians.\n    \"\"\"\n    return elevation_angle(self, location, not radians)\n```",
+  "rewrite": "def elevation_angle(self, location: \"Location\", radians: bool=False) -> Optional[float]:\n    \"\"\"\n    Computes the uphill/downhill angle towards locations.\n\n    Parameters\n    ----------\n    location: Location\n        Location to calculate the angle to.\n    radians: bool, default=False\n        If True: return result in radians.\n        If False: return result in degrees.\n\n    Returns\n    ----------\n    angle : float\n        Angle returned in degrees or radians.\n    \"\"\"\n    return elevation_angle(self, location, not radians)",
+  "strategy": "llm"
+}

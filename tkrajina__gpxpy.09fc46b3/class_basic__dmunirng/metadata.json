@@ -1,0 +1,7 @@
+{
+  "cost": 0.0011996900000000002,
+  "explanation": "",
+  "output": "```python\ndef distance_2d(self, location: \"Location\") -> Optional[float]:\n    \"\"\"\n    Calculate the distance between self and location in meters.\n    Does not take elevation in account.\n\n    Parameters\n    ----------\n    location: Location\n        Location to calculate the distance to.\n\n    Returns\n    ----------\n    distance : float\n        Distance returned in meters.\n    \"\"\"\n    if not location:\n        return None\n\n    return distance(self.latitude, self.longitude, None, location.longitude, location.latitude, None)\n```",
+  "rewrite": "def distance_2d(self, location: \"Location\") -> Optional[float]:\n    \"\"\"\n    Calculate the distance between self and location in meters.\n    Does not take elevation in account.\n\n    Parameters\n    ----------\n    location: Location\n        Location to calculate the distance to.\n\n    Returns\n    ----------\n    distance : float\n        Distance returned in meters.\n    \"\"\"\n    if not location:\n        return None\n\n    return distance(self.latitude, self.longitude, None, location.longitude, location.latitude, None)",
+  "strategy": "llm"
+}

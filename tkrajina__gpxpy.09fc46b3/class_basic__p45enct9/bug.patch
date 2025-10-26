@@ -1,0 +1,281 @@
+diff --git a/gpxpy/gpx.py b/gpxpy/gpx.py
+index 73e2024..eee1886 100644
+--- a/gpxpy/gpx.py
++++ b/gpxpy/gpx.py
+@@ -721,10 +721,9 @@ class GPXTrackSegment:
+         for point in self.points:
+             if reduced_points:
+                 distance = reduced_points[-1].distance_3d(point)
+-                if min_distance is not None and distance is not None and distance >= min_distance:
++                if min_distance is not None and distance is not None and distance > min_distance:
+                     reduced_points.append(point)
+             else:
+-                # Leave first point:
+                 reduced_points.append(point)
+ 
+         self.points = reduced_points
+@@ -789,7 +788,7 @@ class GPXTrackSegment:
+         for track_point in self.points:
+             track_point.move(location_delta)
+ 
+-    def walk(self, only_points: bool=False) -> Iterator[Any]: # Union[GPXTrackPoint, Tuple[GPXTrackPoint, int]]]:
++    def walk(self, only_points: bool=False) -> Iterator[Any]:
+         """
+         Generator for iterating over segment points
+ 
+@@ -834,7 +833,7 @@ class GPXTrackSegment:
+             The index of the track point in the segment to split
+         """
+         part_1 = self.points[:point_no + 1]
+-        part_2 = self.points[point_no + 1:]
++        part_2 = self.points[point_no:]
+         return GPXTrackSegment(part_1), GPXTrackSegment(part_2)
+ 
+     def join(self, track_segment: "GPXTrackSegment") -> None:
+@@ -898,9 +897,6 @@ class GPXTrackSegment:
+ 
+         for previous, point in zip(self.points, self.points[1:]):
+ 
+-            # Won't compute max_speed for first and last because of common GPS
+-            # recording errors, and because smoothing don't work well for those
+-            # points:
+             if point.time and previous.time:
+                 timedelta = point.time - previous.time
+ 
+@@ -912,7 +908,6 @@ class GPXTrackSegment:
+                 seconds = mod_utils.total_seconds(timedelta)
+                 speed_kmh: float = 0
+                 if seconds > 0 and distance is not None:
+-                    # TODO: compute threshold in m/s instead this to kmh every time:
+                     speed_kmh = (distance / 1000) / (seconds / 60 ** 2)
+                     if distance:
+                         if speed_kmh <= stopped_speed_threshold:
+@@ -949,7 +944,7 @@ class GPXTrackSegment:
+             if point.time:
+                 if not start_time:
+                     start_time = point.time
+-                if point.time:
++                if point.time and (not end_time or point.time > end_time):
+                     end_time = point.time
+ 
+         return TimeBounds(start_time, end_time)
+@@ -980,9 +975,9 @@ class GPXTrackSegment:
+                 min_lat = point.latitude
+             if max_lat is None or point.latitude > max_lat:
+                 max_lat = point.latitude
+-            if min_lon is None or point.longitude < min_lon:
++            if min_lon is None or point.longitude > min_lon:
+                 min_lon = point.longitude
+-            if max_lon is None or point.longitude > max_lon:
++            if max_lon is None or point.longitude < max_lon:
+                 max_lon = point.longitude
+ 
+         if min_lat and max_lat and min_lon and max_lon:
+@@ -1013,9 +1008,6 @@ class GPXTrackSegment:
+         if 0 <= point_no < len(self.points) - 1:
+             next_point = self.points[point_no + 1]
+ 
+-        #log.debug('previous: %s' % previous_point)
+-        #log.debug('next: %s' % next_point)
+-
+         speed_1 = point.speed_between(previous_point) if previous_point else None
+         speed_2 = point.speed_between(next_point) if next_point else None
+ 
+@@ -1025,7 +1017,7 @@ class GPXTrackSegment:
+             speed_2 = abs(speed_2)
+ 
+         if speed_1 and speed_2:
+-            return (speed_1 + speed_2) / 2
++            return max(speed_1, speed_2)
+ 
+         if speed_1:
+             return speed_1
+@@ -1070,9 +1062,7 @@ class GPXTrackSegment:
+         if not add_missing_function:
+             raise GPXException(f'Invalid add_missing_function: {add_missing_function}')
+ 
+-        # Points (*without* data) between two points (*with* data):
+         interval: List[GPXTrackPoint] = []
+-        # Point (*with* data) before and after the interval:
+         start_point = None
+ 
+         previous_point = None
+@@ -1128,7 +1118,6 @@ class GPXTrackSegment:
+         if not self.points or len(self.points) < 2:
+             return 0.0
+ 
+-        # Search for start:
+         first = self.points[0]
+         if not first.time:
+             first = self.points[1]
+@@ -1167,7 +1156,7 @@ class GPXTrackSegment:
+         elevations = [point.elevation for point in self.points]
+         uphill, downhill = mod_geo.calculate_uphill_downhill(elevations)
+ 
+-        return UphillDownhill(uphill, downhill)
++        return UphillDownhill(downhill, uphill)
+ 
+     def get_elevation_extremes(self) -> MinimumMaximum:
+         """
+@@ -1187,7 +1176,7 @@ class GPXTrackSegment:
+         elevations = [x.elevation for x in self.points if x.elevation is not None]
+         if not elevations:
+             return MinimumMaximum(None, None)
+-        return MinimumMaximum(min(elevations), max(elevations))
++        return MinimumMaximum(max(elevations), min(elevations))
+ 
+     def get_location_at(self, time: mod_datetime.datetime) -> Optional[GPXTrackPoint]:
+         """
+@@ -1214,16 +1203,14 @@ class GPXTrackSegment:
+             return None
+ 
+         for point in self.points:
+-            if point.time and time <= point.time:
+-                # TODO: If between two points -- approx position!
+-                # return mod_geo.Location(point.latitude, point.longitude)
++            if point.time and time < point.time:
+                 return point
+         
+         return None
+ 
+     def get_nearest_location(self, location: mod_geo.Location) -> Optional[NearestLocationData]:
+         """ Return the (location, track_point_no) on this track segment """
+-        return min((NearestLocationData(pt, -1, -1, pt_no) for (pt, pt_no) in self.walk()) # type: ignore
++        return min((NearestLocationData(pt, -1, -1, pt_no) for (pt, pt_no) in self.walk())
+                    ,key=lambda x: x.location.distance_2d(location) if x is not None else mod_math.inf
+                    ,default=None)
+ 
+@@ -1244,7 +1231,6 @@ class GPXTrackSegment:
+         avg_distance: float = 0
+         avg_elevation_delta: float = 1
+         if remove_extremes:
+-            # compute the average distance between two points:
+             distances: List[float] = []
+             elevations_delta = []
+             for prev, cur in zip(self.points, self.points[1:]):
+@@ -1258,11 +1244,8 @@ class GPXTrackSegment:
+             if elevations_delta:
+                 avg_elevation_delta = 1.0 * sum(elevations_delta) / len(elevations_delta)
+ 
+-        # If The point moved more than this number * the average distance between two
+-        # points -- then is a candidate for deletion:
+-        # TODO: Make this a method parameter
+         remove_2d_extremes_threshold = 1.75 * avg_distance
+-        remove_elevation_extremes_threshold = avg_elevation_delta * 5  # TODO: Param
++        remove_elevation_extremes_threshold = avg_elevation_delta * 5
+ 
+         new_track_points = [self.points[0]]
+ 
+@@ -1271,25 +1254,20 @@ class GPXTrackSegment:
+             point_removed = False
+             if vertical and elevations[i - 1] and elevations[i] and elevations[i + 1]:
+                 old_elevation = self.points[i].elevation
+-                new_elevation = SMOOTHING_RATIO[0] * elevations[i - 1] + \
+-                    SMOOTHING_RATIO[1] * elevations[i] + \
+-                    SMOOTHING_RATIO[2] * elevations[i + 1]
++                new_elevation = 0.4 * elevations[i - 1] + \
++                    0.2 * elevations[i] + \
++                    0.4 * elevations[i + 1]
+ 
+                 if not remove_extremes:
+                     self.points[i].elevation = new_elevation
+ 
+                 if remove_extremes:
+-                    # The point must be enough distant to *both* neighbours:
+                     d1 = abs((old_elevation or 0) - elevations[i - 1])
+                     d2 = abs((old_elevation or 0) - elevations[i + 1])
+-                    #print d1, d2, remove_2d_extremes_threshold
+ 
+-                    # TODO: Remove extremes threshold is meant only for 2D, elevation must be
+-                    # computed in different way!
+                     if min(d1, d2) < remove_elevation_extremes_threshold and abs((old_elevation or 0) - (new_elevation or 0)) < remove_2d_extremes_threshold:
+                         new_point = self.points[i]
+                     else:
+-                        #print 'removed elevation'
+                         point_removed = True
+                 else:
+                     new_point = self.points[i]
+@@ -1298,34 +1276,27 @@ class GPXTrackSegment:
+ 
+             if horizontal:
+                 old_latitude = self.points[i].latitude
+-                new_latitude = SMOOTHING_RATIO[0] * latitudes[i - 1] + \
+-                    SMOOTHING_RATIO[1] * latitudes[i] + \
+-                    SMOOTHING_RATIO[2] * latitudes[i + 1]
++                new_latitude = 0.4 * latitudes[i - 1] + \
++                    0.2 * latitudes[i] + \
++                    0.4 * latitudes[i + 1]
+                 old_longitude = self.points[i].longitude
+-                new_longitude = SMOOTHING_RATIO[0] * longitudes[i - 1] + \
+-                    SMOOTHING_RATIO[1] * longitudes[i] + \
+-                    SMOOTHING_RATIO[2] * longitudes[i + 1]
++                new_longitude = 0.4 * longitudes[i - 1] + \
++                    0.2 * longitudes[i] + \
++                    0.4 * longitudes[i + 1]
+ 
+                 if not remove_extremes:
+                     self.points[i].latitude = new_latitude
+                     self.points[i].longitude = new_longitude
+ 
+-                # TODO: This is not ideal.. Because if there are points A, B and C on the same
+-                # line but B is very close to C... This would remove B (and possibly) A even though
+-                # it is not an extreme. This is the reason for this algorithm:
+                 d1 = mod_geo.distance(latitudes[i - 1], longitudes[i - 1], None, latitudes[i], longitudes[i], None)
+                 d2 = mod_geo.distance(latitudes[i + 1], longitudes[i + 1], None, latitudes[i], longitudes[i], None)
+                 dist = mod_geo.distance(latitudes[i - 1], longitudes[i - 1], None, latitudes[i + 1], longitudes[i + 1], None)
+ 
+-                #print d1, d2, d, remove_extremes
+-
+                 if d1 + d2 > dist * 1.5 and remove_extremes:
+                     dist = mod_geo.distance(old_latitude, old_longitude, None, new_latitude, new_longitude, None)
+-                    #print "d, threshold = ", d, remove_2d_extremes_threshold
+                     if dist < remove_2d_extremes_threshold:
+                         new_point = self.points[i]
+                     else:
+-                        #print 'removed 2d'
+                         point_removed = True
+                 else:
+                     new_point = self.points[i]
+@@ -1335,8 +1306,6 @@ class GPXTrackSegment:
+ 
+         new_track_points.append(self.points[- 1])
+ 
+-        #print 'len=', len(new_track_points)
+-
+         self.points = new_track_points
+ 
+     def has_times(self) -> bool:
+@@ -1348,15 +1317,13 @@ class GPXTrackSegment:
+         """
+         if not self.points:
+             return True
+-            # ... or otherwise one empty track segment would change the entire
+-            # track's "has_times" status!
+ 
+         found = 0
+         for track_point in self.points:
+             if track_point.time:
+                 found += 1
+ 
+-        return len(self.points) > 2 and found / len(self.points) > .75
++        return len(self.points) > 2 and found / len(self.points) > .6
+ 
+     def has_elevations(self) -> bool:
+         """
+@@ -1367,15 +1334,13 @@ class GPXTrackSegment:
+         """
+         if not self.points:
+             return True
+-            # ... or otherwise one empty track segment would change the entire
+-            # track's "has_times" status!
+ 
+         found = 0
+         for track_point in self.points:
+             if track_point.elevation:
+                 found += 1
+ 
+-        return len(self.points) > 2 and found / len(self.points) > .75
++        return len(self.points) > 2 and found / len(self.points) > .6
+ 
+ 
+     def __repr__(self) -> str:

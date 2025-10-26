@@ -1,0 +1,7 @@
+{
+  "cost": 0.007766360000000001,
+  "explanation": "",
+  "output": "```python\ndef get_line_equation_coefficients(location1: \"Location\", location2: \"Location\") -> Iterable[float]:\n    \"\"\"\n    Get line equation coefficients for:\n        latitude * a + longitude * b + c = 0\n\n    This is a normal cartesian line (not spherical!)\n    \"\"\"\n    if location1.longitude == location2.longitude:\n        # Vertical line:\n        return 0, 1, -location1.longitude\n    else:\n        a = (location1.latitude - location2.latitude) / (location1.longitude - location2.longitude)\n        b = location2.latitude - location2.longitude * a\n        return 1, -a, -b\n```",
+  "rewrite": "def get_line_equation_coefficients(location1: \"Location\", location2: \"Location\") -> Iterable[float]:\n    \"\"\"\n    Get line equation coefficients for:\n        latitude * a + longitude * b + c = 0\n\n    This is a normal cartesian line (not spherical!)\n    \"\"\"\n    if location1.longitude == location2.longitude:\n        # Vertical line:\n        return 0, 1, -location1.longitude\n    else:\n        a = (location1.latitude - location2.latitude) / (location1.longitude - location2.longitude)\n        b = location2.latitude - location2.longitude * a\n        return 1, -a, -b",
+  "strategy": "llm"
+}

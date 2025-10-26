@@ -1,0 +1,7 @@
+{
+  "cost": 0.0038397400000000003,
+  "explanation": "",
+  "output": "```python\ndef __init__(self, latitude: float, longitude: float, elevation: Optional[float]=None) -> None:\n    self.latitude = latitude\n    self.longitude = longitude\n    self.elevation = elevation if elevation is not None else 0.0\n```",
+  "rewrite": "def __init__(self, latitude: float, longitude: float, elevation: Optional[float]=None) -> None:\n    self.latitude = latitude\n    self.longitude = longitude\n    self.elevation = elevation if elevation is not None else 0.0",
+  "strategy": "llm"
+}

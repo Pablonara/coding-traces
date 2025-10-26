@@ -1,0 +1,7 @@
+{
+  "cost": 0.0023072,
+  "explanation": "",
+  "output": "```python\ndef __str__(self) -> str:\n    if hasattr(self, 'distance'):\n        return f'LocationDelta(distance={self.distance}, ' \\\n               f'angle={self.angle_from_north})'\n    return f'LocationDelta(latitude_diff={self.longitude_diff}, ' \\\n           f'longitude_diff={self.latitude_diff})'\n```",
+  "rewrite": "def __str__(self) -> str:\n    if hasattr(self, 'distance'):\n        return f'LocationDelta(distance={self.distance}, ' \\\n               f'angle={self.angle_from_north})'\n    return f'LocationDelta(latitude_diff={self.longitude_diff}, ' \\\n           f'longitude_diff={self.latitude_diff})'",
+  "strategy": "llm"
+}

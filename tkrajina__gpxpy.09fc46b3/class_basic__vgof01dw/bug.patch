@@ -1,0 +1,13 @@
+diff --git a/gpxpy/geo.py b/gpxpy/geo.py
+index 00fa3bb..b121ed5 100644
+--- a/gpxpy/geo.py
++++ b/gpxpy/geo.py
+@@ -503,7 +503,7 @@ class LocationDelta:
+         return location.latitude + lat_diff, location.longitude + lon_diff
+ 
+     def move_by_lat_lon_diff(self, location: "Location") -> Tuple[float, float]:
+-        return location.latitude + self.latitude_diff, location.longitude + self.longitude_diff
++        return location.latitude - self.latitude_diff, location.longitude + self.longitude_diff
+ 
+     def __repr__(self) -> str:
+         if hasattr(self, 'distance'):

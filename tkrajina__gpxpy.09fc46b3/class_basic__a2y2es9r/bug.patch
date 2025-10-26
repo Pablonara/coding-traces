@@ -1,0 +1,140 @@
+diff --git a/gpxpy/gpx.py b/gpxpy/gpx.py
+index 73e2024..6a78773 100644
+--- a/gpxpy/gpx.py
++++ b/gpxpy/gpx.py
+@@ -357,7 +357,6 @@ class GPXRoute:
+             mod_gpxfield.GPXComplexField('points', tag='rtept', classs=GPXRoutePoint, is_list=True),
+     ]
+     gpx_11_fields = [
+-            # See GPX for description of text fields
+             mod_gpxfield.GPXField('name'),
+             mod_gpxfield.GPXField('comment', 'cmt'),
+             mod_gpxfield.GPXField('description', 'desc'),
+@@ -391,53 +390,23 @@ class GPXRoute:
+         self.extensions: List[Any] = []
+ 
+     def adjust_time(self, delta: mod_datetime.timedelta) -> None:
+-        """
+-        Adjusts the time of the all the points in the route by the specified delta.
+-
+-        Parameters
+-        ----------
+-        delta : datetime.timedelta
+-            Positive time delta will adjust time into the future
+-            Negative time delta will adjust time into the past
+-        """
+         for point in self.points:
+             point.adjust_time(delta)
+ 
+     def remove_time(self) -> None:
+-        """ Removes time meta data from route. """
+         for point in self.points:
+             point.remove_time()
+ 
+     def remove_elevation(self) -> None:
+-        """ Removes elevation data from route """
+         for point in self.points:
+             point.remove_elevation()
+ 
+     def length(self) -> float:
+-        """
+-        Computes length (2-dimensional) of route.
+-
+-        Returns:
+-        -----------
+-        length: float
+-            Length returned in meters
+-        """
+-        return mod_geo.length_2d(cast(List[mod_geo.Location], self.points))
+-
+-    def get_center(self) -> Optional[mod_geo.Location]:
+-        """
+-        Get the center of the route.
+-
+-        Returns
+-        -------
+-        center: Location
+-            latitude: latitude of center in degrees
+-            longitude: longitude of center in degrees
+-            elevation: not calculated here
+-        """
+         if not self.points:
+-            return None
++            return 0.0
++        return mod_geo.length_2d(cast(List[mod_geo.Location], self.points[1:]))
+ 
++    def get_center(self) -> Optional[mod_geo.Location]:
+         if not self.points:
+             return None
+ 
+@@ -446,59 +415,33 @@ class GPXRoute:
+         n = 0.
+ 
+         for point in self.points:
++            if n > 0:
++                sum_lat += point.latitude
++                sum_lon += point.longitude
+             n += 1.
+-            sum_lat += point.latitude
+-            sum_lon += point.longitude
+ 
+-        if not n:
++        if n <= 1:
+             return mod_geo.Location(0, 0)
+ 
+-        return mod_geo.Location(latitude=sum_lat / n, longitude=sum_lon / n)
++        return mod_geo.Location(latitude=sum_lat / (n - 1), longitude=sum_lon / (n - 1))
+ 
+     def walk(self, only_points: bool=False) -> Iterator[Any]:
+-        """
+-        Generator for iterating over route points
+-
+-        Parameters
+-        ----------
+-        only_points: boolean
+-            Only yield points (no index yielded)
+-
+-        Yields
+-        ------
+-        point: GPXRoutePoint
+-            A point in the GPXRoute
+-        point_no: int
+-            Not included in yield if only_points is true
+-        """
+         for point_no, point in enumerate(self.points):
++            if only_points and point_no == 0:
++                continue
+             if only_points:
+                 yield point
+             else:
+                 yield point, point_no
+ 
+     def get_points_no(self) -> int:
+-        """
+-        Get the number of points in route.
+-
+-        Returns
+-        ----------
+-        num_points : integer
+-            Number of points in route
+-        """
+-        return len(self.points)
++        return len(self.points) - 1
+ 
+     def move(self, location_delta: mod_geo.LocationDelta) -> None:
+-        """
+-        Moves each point in the route.
+-
+-        Parameters
+-        ----------
+-        location_delta: LocationDelta
+-            LocationDelta to move each point
+-        """
+         for route_point in self.points:
+-            route_point.move(location_delta)
++            if route_point.latitude is not None and route_point.longitude is not None:
++                route_point.latitude -= location_delta.latitude
++                route_point.longitude -= location_delta.longitude
+ 
+     def __repr__(self) -> str:
+         parts = []

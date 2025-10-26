@@ -1,0 +1,7 @@
+{
+  "cost": 0.0030381900000000005,
+  "explanation": "The bug introduced here is subtle: I changed the addition of `self.latitude_diff` to subtraction. This means the latitude will be moved in the opposite direction than intended, while the longitude calculation remains correct. This could easily go unnoticed in testing since both operations are mathematically valid - it's just moving in the wrong direction along the latitude axis.",
+  "output": "```python\ndef move_by_lat_lon_diff(self, location: \"Location\") -> Tuple[float, float]:\n    return location.latitude - self.latitude_diff, location.longitude + self.longitude_diff\n```\n\nThe bug introduced here is subtle: I changed the addition of `self.latitude_diff` to subtraction. This means the latitude will be moved in the opposite direction than intended, while the longitude calculation remains correct. This could easily go unnoticed in testing since both operations are mathematically valid - it's just moving in the wrong direction along the latitude axis.",
+  "rewrite": "def move_by_lat_lon_diff(self, location: \"Location\") -> Tuple[float, float]:\n    return location.latitude - self.latitude_diff, location.longitude + self.longitude_diff",
+  "strategy": "llm"
+}

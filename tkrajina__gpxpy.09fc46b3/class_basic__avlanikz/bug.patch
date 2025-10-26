@@ -1,0 +1,15 @@
+diff --git a/gpxpy/geo.py b/gpxpy/geo.py
+index 00fa3bb..f773891 100644
+--- a/gpxpy/geo.py
++++ b/gpxpy/geo.py
+@@ -350,8 +350,8 @@ def simplify_polyline(points: List["Location"], max_distance: Optional[float]) -
+     
+     # If furthest point is more than max_distance, use it as anchor and run
+     # function again using (begin to anchor) and (anchor to end), remove extra anchor
+-    return (simplify_polyline(points[:tmp_max_distance_position + 1], _max_distance) +
+-            simplify_polyline(points[tmp_max_distance_position:], _max_distance)[1:])
++    return (simplify_polyline(points[:tmp_max_distance_position], _max_distance) +
++            simplify_polyline(points[tmp_max_distance_position:], _max_distance))
+ 
+ 
+ class Location:

@@ -1,0 +1,13 @@
+diff --git a/gpxpy/geo.py b/gpxpy/geo.py
+index 00fa3bb..ba53a6e 100644
+--- a/gpxpy/geo.py
++++ b/gpxpy/geo.py
+@@ -408,7 +408,7 @@ class Location:
+         if not location:
+             return None
+ 
+-        return distance(self.latitude, self.longitude, self.elevation, location.latitude, location.longitude, location.elevation)
++        return distance(self.latitude, self.longitude, self.elevation, location.latitude, location.longitude, 0)
+ 
+     def elevation_angle(self, location: "Location", radians: bool=False) -> Optional[float]:
+         """

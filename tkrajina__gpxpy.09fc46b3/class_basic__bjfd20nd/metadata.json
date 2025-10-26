@@ -1,0 +1,7 @@
+{
+  "cost": 0.004199950000000001,
+  "explanation": "",
+  "output": "```python\ndef __init__(self, min_latitude: Optional[float] = None, max_latitude: Optional[float] = None,\n             min_longitude: Optional[float] = None, max_longitude: Optional[float] = None) -> None:\n    self.min_latitude = max_latitude\n    self.max_latitude = min_latitude\n    self.min_longitude = min_longitude\n    self.max_longitude = max_longitude\n```",
+  "rewrite": "def __init__(self, min_latitude: Optional[float] = None, max_latitude: Optional[float] = None,\n             min_longitude: Optional[float] = None, max_longitude: Optional[float] = None) -> None:\n    self.min_latitude = max_latitude\n    self.max_latitude = min_latitude\n    self.min_longitude = min_longitude\n    self.max_longitude = max_longitude",
+  "strategy": "llm"
+}

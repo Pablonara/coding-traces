@@ -1,0 +1,13 @@
+diff --git a/gpxpy/geo.py b/gpxpy/geo.py
+index 00fa3bb..c2b42be 100644
+--- a/gpxpy/geo.py
++++ b/gpxpy/geo.py
+@@ -486,7 +486,7 @@ class LocationDelta:
+                 raise Exception('No distance/angle if using lat/lon diff!')
+             self.latitude_diff  = latitude_diff
+             self.longitude_diff = longitude_diff
+-            self.move_function = self.move_by_lat_lon_diff
++            self.move_function = self.move_by_angle_and_distance
+ 
+     def move(self, location: Location) -> Tuple[float, float]:
+         """

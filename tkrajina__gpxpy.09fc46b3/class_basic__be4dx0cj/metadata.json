@@ -1,0 +1,7 @@
+{
+  "cost": 0.0033841300000000004,
+  "explanation": "",
+  "output": "```python\ndef distance_from_line(point: \"Location\", line_point_1: \"Location\", line_point_2: \"Location\") -> Optional[float]:\n    \"\"\" Distance of point from a line given with two points. \"\"\"\n    assert point, point\n    assert line_point_1, line_point_1\n    assert line_point_2, line_point_2\n\n    a = line_point_1.distance_2d(line_point_2)\n\n    if not a:\n        return line_point_1.distance_2d(point)\n\n    b = line_point_1.distance_2d(point)\n    c = line_point_2.distance_2d(point)\n\n    if a is not None and b is not None and c is not None:\n        s = (a + b + c) / 2\n        return 2 * mod_math.sqrt(abs(s * (s - a) * (s - b) * (s - c))) / b\n    return None\n```",
+  "rewrite": "def distance_from_line(point: \"Location\", line_point_1: \"Location\", line_point_2: \"Location\") -> Optional[float]:\n    \"\"\" Distance of point from a line given with two points. \"\"\"\n    assert point, point\n    assert line_point_1, line_point_1\n    assert line_point_2, line_point_2\n\n    a = line_point_1.distance_2d(line_point_2)\n\n    if not a:\n        return line_point_1.distance_2d(point)\n\n    b = line_point_1.distance_2d(point)\n    c = line_point_2.distance_2d(point)\n\n    if a is not None and b is not None and c is not None:\n        s = (a + b + c) / 2\n        return 2 * mod_math.sqrt(abs(s * (s - a) * (s - b) * (s - c))) / b\n    return None",
+  "strategy": "llm"
+}

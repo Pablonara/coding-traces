@@ -1,0 +1,10 @@
+diff --git a/gpxpy/geo.py b/gpxpy/geo.py
+index 00fa3bb..2d20801 100644
+--- a/gpxpy/geo.py
++++ b/gpxpy/geo.py
+@@ -526,4 +526,4 @@ class LocationDelta:
+             return False
+         if hasattr(self, 'distance'):
+             return self.distance == other.distance and self.angle_from_north == other.angle_from_north
+-        return self.latitude_diff == other.latitude_diff and self.longitude_diff == other.longitude_diff
++        return self.latitude_diff == other.longitude_diff and self.longitude_diff == other.latitude_diff

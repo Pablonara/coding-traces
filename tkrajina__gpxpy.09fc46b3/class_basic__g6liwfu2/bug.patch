@@ -1,0 +1,15 @@
+diff --git a/gpxpy/geo.py b/gpxpy/geo.py
+index 00fa3bb..a7ede74 100644
+--- a/gpxpy/geo.py
++++ b/gpxpy/geo.py
+@@ -514,8 +514,8 @@ class LocationDelta:
+         if hasattr(self, 'distance'):
+             return f'LocationDelta(distance={self.distance}, ' \
+                    f'angle={self.angle_from_north})'
+-        return f'LocationDelta(latitude_diff={self.latitude_diff}, ' \
+-               f'longitude_diff={self.longitude_diff})'
++        return f'LocationDelta(latitude_diff={self.longitude_diff}, ' \
++               f'longitude_diff={self.latitude_diff})'
+ 
+     def __eq__(self, other: object) -> bool:
+         if not isinstance(other, self.__class__):

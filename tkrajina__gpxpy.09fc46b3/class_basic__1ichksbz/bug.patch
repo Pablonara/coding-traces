@@ -1,0 +1,40 @@
+diff --git a/gpxpy/gpx.py b/gpxpy/gpx.py
+index 73e2024..c9a3afa 100644
+--- a/gpxpy/gpx.py
++++ b/gpxpy/gpx.py
+@@ -293,7 +293,7 @@ class GPXRoutePoint(mod_geo.Location):
+                  horizontal_dilution: Optional[float]=None, vertical_dilution: Optional[float]=None,
+                  position_dilution: Optional[float]=None) -> None:
+ 
+-        mod_geo.Location.__init__(self, latitude or 0, longitude or 0, elevation)
++        mod_geo.Location.__init__(self, longitude or 0, latitude or 0, elevation)
+         self.time = time
+         self.magnetic_variation: Optional[float] = None
+         self.geoid_height: Optional[float] = None
+@@ -316,10 +316,10 @@ class GPXRoutePoint(mod_geo.Location):
+         self.extensions: List[Any] = [] # TODO
+ 
+     def __str__(self) -> str:
+-        return f'[rtept{{{self.name}}}:{self.latitude},{self.longitude}@{self.elevation}]'
++        return f'[rtept{{{self.name}}}:{self.longitude},{self.latitude}@{self.elevation}]'
+ 
+     def __repr__(self) -> str:
+-        parts = [f'{self.latitude}, {self.longitude}']
++        parts = [f'{self.longitude}, {self.latitude}']
+         for attribute in 'elevation', 'time', 'name', 'description', 'symbol', 'type', 'comment', \
+                 'horizontal_dilution', 'vertical_dilution', 'position_dilution':
+             value = getattr(self, attribute)
+@@ -338,11 +338,11 @@ class GPXRoutePoint(mod_geo.Location):
+             Negative time delta will adjust time into the past
+         """
+         if self.time:
+-            self.time += delta
++            self.time -= delta
+ 
+     def remove_time(self) -> None:
+         """ Will remove time metadata. """
+-        self.time = None
++        self.time = mod_datetime.datetime.now()
+ 
+ 
+ class GPXRoute:

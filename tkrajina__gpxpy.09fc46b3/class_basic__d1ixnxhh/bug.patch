@@ -1,0 +1,173 @@
+diff --git a/gpxpy/geo.py b/gpxpy/geo.py
+index 00fa3bb..a36c775 100644
+--- a/gpxpy/geo.py
++++ b/gpxpy/geo.py
+@@ -366,9 +366,165 @@ class Location:
+         """Returns if this location contains elevation data."""
+         return self.elevation is not None
+ 
+-    def remove_elevation(self) -> None:
+-        """ Remove the elevation data from this location."""
+-        self.elevation = None
++    class BlackBody(Fittable1DModel):
++        """
++        Blackbody model using the Planck function.
++
++        Parameters
++        ----------
++        temperature : `~astropy.units.Quantity` ['temperature']
++            Blackbody temperature.
++
++        scale : float or `~astropy.units.Quantity` ['dimensionless']
++            Scale factor
++
++        Notes
++        -----
++
++        Model formula:
++
++            .. math:: B_{\\nu}(T) = A \\frac{2 h \\nu^{3} / c^{2}}{exp(h \\nu / k T) - 1}
++
++        Examples
++        --------
++        >>> from astropy.modeling import models
++        >>> from astropy import units as u
++        >>> bb = models.BlackBody(temperature=5000*u.K)
++        >>> bb(6000 * u.AA)  # doctest: +FLOAT_CMP
++        <Quantity 1.53254685e-05 erg / (cm2 Hz s sr)>
++
++        .. plot::
++            :include-source:
++
++            import numpy as np
++            import matplotlib.pyplot as plt
++
++            from astropy.modeling.models import BlackBody
++            from astropy import units as u
++            from astropy.visualization import quantity_support
++
++            bb = BlackBody(temperature=5778*u.K)
++            wav = np.arange(1000, 110000) * u.AA
++            flux = bb(wav)
++
++            with quantity_support():
++                plt.figure()
++                plt.semilogx(wav, flux)
++                plt.axvline(bb.nu_max.to(u.AA, equivalencies=u.spectral()).value, ls='--')
++                plt.show()
++        """
++
++        temperature = Parameter(default=5000.0, min=0, unit=u.K, description="Blackbody temperature")
++        scale = Parameter(default=1.0, min=0, description="Scale factor")
++
++        _input_units_allow_dimensionless = True
++
++        input_units_equivalencies = {'x': u.spectral()}
++
++        def evaluate(self, x, temperature, scale):
++            """Evaluate the model.
++
++            Parameters
++            ----------
++            x : float, `~numpy.ndarray`, or `~astropy.units.Quantity` ['frequency']
++                Frequency at which to compute the blackbody. If no units are given,
++                this defaults to Hz.
++
++            temperature : float, `~numpy.ndarray`, or `~astropy.units.Quantity`
++                Temperature of the blackbody. If no units are given, this defaults
++                to Kelvin.
++
++            scale : float, `~numpy.ndarray`, or `~astropy.units.Quantity` ['dimensionless']
++                Desired scale for the blackbody.
++
++            Returns
++            -------
++            y : number or ndarray
++                Blackbody spectrum. The units are determined from the units of
++                ``scale``.
++
++            .. note::
++
++                Use `numpy.errstate` to suppress Numpy warnings, if desired.
++
++            .. warning::
++
++                Output values might contain ``nan`` and ``inf``.
++
++            Raises
++            ------
++            ValueError
++                Invalid temperature.
++
++            ZeroDivisionError
++                Wavelength is zero (when converting to frequency).
++            """
++            if not isinstance(temperature, u.Quantity):
++                in_temp = u.Quantity(temperature, u.K)
++            else:
++                in_temp = temperature
++
++            with u.add_enabled_equivalencies(u.spectral() + u.temperature()):
++                freq = u.Quantity(x, u.Hz, dtype=np.float64)
++                temp = u.Quantity(in_temp, u.K)
++
++            bb_unit = u.erg / (u.cm ** 2 * u.s * u.Hz * u.sr)
++            if hasattr(self.scale, "unit") and self.scale.unit is not None:
++                if not self.scale.unit.is_equivalent(bb_unit, u.spectral_density(x)):
++                    raise ValueError(
++                        f"scale units not surface brightness: {self.scale.unit}"
++                    )
++                if hasattr(scale, "unit"):
++                    mult_scale = scale.value
++                else:
++                    mult_scale = scale
++                bb_unit = self.scale.unit
++            else:
++                mult_scale = scale
++
++            if np.any(temp < 0):
++                raise ValueError(f"Temperature should be positive: {temp}")
++            if not np.all(np.isfinite(freq)) or np.any(freq <= 0):
++                warnings.warn(
++                    "Input contains invalid wavelength/frequency value(s)",
++                    AstropyUserWarning,
++                )
++
++            log_boltz = const.h * freq / (const.k_B * temp)
++            boltzm1 = np.expm1(log_boltz)
++
++            bb_nu = 2.0 * const.h * freq ** 3 / (const.c ** 2 * boltzm1) / u.sr
++
++            y = mult_scale * bb_nu.to(bb_unit, u.spectral_density(freq))
++
++            if hasattr(temperature, "unit"):
++                return y
++            return y.value
++
++        @property
++        def input_units(self):
++            return {self.inputs[0]: u.Hz}
++
++        def _parameter_units_for_data_units(self, inputs_unit, outputs_unit):
++            return {"temperature": u.K}
++
++        @property
++        def bolometric_flux(self):
++            """Bolometric flux."""
++            native_bolflux = (
++                self.scale.value * const.sigma_sb * self.temperature ** 4 / np.pi
++            )
++            return native_bolflux.to(u.erg / (u.cm ** 2 * u.s))
++
++        @property
++        def lambda_max(self):
++            """Peak wavelength when the curve is expressed as power density."""
++            return const.b_wien / self.temperature
++
++        @property
++        def nu_max(self):
++            """Peak frequency when the curve is expressed as power density."""
++            return 2.8214391 * const.k_B * self.temperature / const.h
+ 
+     def distance_2d(self, location: "Location") -> Optional[float]:
+         """

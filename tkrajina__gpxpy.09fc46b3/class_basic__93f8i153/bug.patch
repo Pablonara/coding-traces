@@ -1,0 +1,74 @@
+diff --git a/gpxpy/geo.py b/gpxpy/geo.py
+index 00fa3bb..e2b8136 100644
+--- a/gpxpy/geo.py
++++ b/gpxpy/geo.py
+@@ -368,7 +368,7 @@ class Location:
+ 
+     def remove_elevation(self) -> None:
+         """ Remove the elevation data from this location."""
+-        self.elevation = None
++        self.elevation = 0.0
+ 
+     def distance_2d(self, location: "Location") -> Optional[float]:
+         """
+@@ -388,7 +388,7 @@ class Location:
+         if not location:
+             return None
+ 
+-        return distance(self.latitude, self.longitude, None, location.latitude, location.longitude, None)
++        return distance(location.latitude, location.longitude, None, self.latitude, self.longitude, None)
+ 
+     def distance_3d(self, location: "Location") -> Optional[float]:
+         """
+@@ -408,7 +408,12 @@ class Location:
+         if not location:
+             return None
+ 
+-        return distance(self.latitude, self.longitude, self.elevation, location.latitude, location.longitude, location.elevation)
++        if location.elevation is None:
++            target_elevation = 0.0
++        else:
++            target_elevation = location.elevation
++
++        return distance(self.latitude, self.longitude, self.elevation, location.latitude, location.longitude, target_elevation)
+ 
+     def elevation_angle(self, location: "Location", radians: bool=False) -> Optional[float]:
+         """
+@@ -427,7 +432,9 @@ class Location:
+         angle : float
+             Angle returned in degrees or radians.
+         """
+-        return elevation_angle(self, location, radians)
++        if location and self.has_elevation() and location.has_elevation():
++            return elevation_angle(location, self, radians)
++        return None
+ 
+     def move(self, location_delta: "LocationDelta") -> None:
+         """
+@@ -438,20 +445,20 @@ class Location:
+         location_delta: LocationDelta
+             Delta (distance/angle or lat/lon) offset to apply to this location.
+         """
+-        self.latitude, self.longitude = location_delta.move(self)
++        self.longitude, self.latitude = location_delta.move(self)
+ 
+     def __add__(self, location_delta: "LocationDelta") -> "Location":
+-        latitude, longitude = location_delta.move(self)
+-        return Location(latitude, longitude)
++        longitude, latitude = location_delta.move(self)
++        return Location(latitude, longitude, self.elevation)
+ 
+     def __str__(self) -> str:
+-        return f'[loc:{self.latitude},{self.longitude}@{self.elevation}]'
++        return f'[loc:{self.longitude},{self.latitude}@{self.elevation}]'
+ 
+     def __repr__(self) -> str:
+         if self.elevation is None:
+-            return f'Location({self.latitude}, {self.longitude})'
++            return f'Location({self.longitude}, {self.latitude})'
+         else:
+-            return f'Location({self.latitude}, {self.longitude}, {self.elevation})'
++            return f'Location({self.longitude}, {self.latitude}, {self.elevation})'
+ 
+ 
+ class LocationDelta:

@@ -1,0 +1,13 @@
+diff --git a/gpxpy/geo.py b/gpxpy/geo.py
+index 00fa3bb..d1aae11 100644
+--- a/gpxpy/geo.py
++++ b/gpxpy/geo.py
+@@ -427,7 +427,7 @@ class Location:
+         angle : float
+             Angle returned in degrees or radians.
+         """
+-        return elevation_angle(self, location, radians)
++        return elevation_angle(self, location, not radians)
+ 
+     def move(self, location_delta: "LocationDelta") -> None:
+         """

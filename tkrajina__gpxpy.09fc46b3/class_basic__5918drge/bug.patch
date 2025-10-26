@@ -1,0 +1,13 @@
+diff --git a/gpxpy/geo.py b/gpxpy/geo.py
+index 00fa3bb..997a503 100644
+--- a/gpxpy/geo.py
++++ b/gpxpy/geo.py
+@@ -89,7 +89,7 @@ def get_course(latitude_1: float, longitude_1: float, latitude_2: float, longitu
+                          / mod_math.tan(delta + 0.5*lat1))
+ 
+     course = mod_math.degrees(mod_math.atan2(y, x))
+-    return course % 360
++    return (course + 180) % 360
+ 
+ 
+ def length(locations: List["Location"]=[], _3d: bool=False) -> float:
